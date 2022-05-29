@@ -16,87 +16,80 @@ import sqlite3
 
 app = Flask(__name__)
 
-#main page
+# Create main page
 @app.route('/')
 def main():
     return render_template('main.html')
 
-# specify that the below function will be called when '/submit/' is appended to the 
-# webpage's URL; also specify that this function will make use of POST and GET methods
+# Submit Page
 @app.route('/submit/', methods=['POST', 'GET'])
 def submit():
-    # render the page if the user only accesses the webpage without submitting a form
+    # user's first time at submit page, show form
     if request.method == 'GET':
         return render_template('submit.html')
 
-# otherwise, the user submitted the form
+# If user submitted form
     else:
-        try: # call insert_message() and save its return values
-            message, handle = insert_message()
-
-            # render the page with various defined variables that can be used by Jinja
-            # to manipulate the webpage
-            return render_template('submit.html', Thanks=True, message=message, handle=handle)
-
-        except: # if an error occurred, render the webpage while specifying the error
+        insert_message(request)
+        try: 
+            #pass the filled in parameters
+            return render_template('submit.html', thanks=True)
+        #if there is an error
+        except: 
             return render_template('submit.html', error=True)
 
 
 
 def get_message_db():
+    #if db exists, return it
     try:
-        return g.message_db # return the database if it already exists
-
-    except: # otherwise, initialize the database
-
-        # create the messages_db.sqlite database
+        return g.message_db 
+    #create db
+    except: 
+        # connect to that database, ensuring that the connection is an attribute of g
         g.message_db = sqlite3.connect("messages_db.sqlite")
 
-        # use a sqlite command to create a table called "messages" with three columns
+        # SQL command to create three columns
         cmd = \
         """
         CREATE TABLE IF NOT EXISTS messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER, 
             message TEXT NOT NULL,
             handle TEXT NOT NULL)
         """
-
-        # create a cursor object referencing the database and execute the command
         cursor = g.message_db.cursor()
         cursor.execute(cmd)
-
         return g.message_db
 
 
-def insert_message():
+def insert_message(request):
 
-    # use request object to get the user's input for 'message',
-    # the name attribute corresponding to the textarea element
-    # that holds the user's message
+    # store user's submitted message
     message = request.form['message']
-
-    # use request object to get the user's input for 'handle',
-    # the name attribute corresponding to the input element
-    # that holds the user's handle
+    # store user's submitted name
     handle = request.form['handle']
 
-    # open a connection to the database with the previously defined function
+    # open the connection
     conn = get_message_db()
+    cursor = conn.cursor()
+
+    #count rows and assign unique id
+    cursor.execute("select count(*) from messages")
+    rows = cursor.fetchone()[0]
+    message_id = 1 + rows
 
     # create a sqlite command that inserts the user's message and handle 
     # into the database
     cmd = \
     f"""
-    INSERT INTO messages (message, handle) 
-    VALUES ('{message}', '{handle}')
+    INSERT INTO messages (id, message, handle) 
+    VALUES ('{message_id}', '{message}', '{handle}')
     """
 
-    # create a cursor object referencing the database and execute the command
-    cursor = conn.cursor()
     cursor.execute(cmd)
-
-    # use commit() to save the changes to the database, and close the connection
+    # ensure row insertion has been saved
     conn.commit()
+    #close the connection
     conn.close()
 
     return message, handle
@@ -104,34 +97,32 @@ def insert_message():
 
 
 
-
 def random_messages(n):
 
-    # connect to the database with the previously defined function
+    # open the connection
     conn = get_message_db()
 
-    # create a sqlite command that randomly selects n many entries from the 
-    # messages table, n being specified by the function call
+    # initialize cursor
+    cursor = conn.cursor()
+
+    #get n random messages
     cmd = \
     f"""
     SELECT * FROM messages ORDER BY RANDOM() LIMIT {n}
     """
 
-    # create a cursor object referencing the database and execute the command
-    cursor = conn.cursor()
     cursor.execute(cmd)
 
-    # fetchall() the selections, assign it to result, and close the connection
-    result = cursor.fetchall()
+    # store in list 
+    message_list = cursor.fetchall()
+    #close the connection
     conn.close()
 
-    return result
+    return message_list
 
 
-# specify that the below function will be called when '/view/' is appended to the 
-# webpage's URL
+# view page
 @app.route('/view/')
 def view(): 
-    # render the page with a messages variable that holds the result of a call to
-    # random_messages() with argument 5
-    return render_template('view.html', messages=random_messages(5))
+    # get 3 random messages to view
+    return render_template('view.html', messages=random_messages(3))
