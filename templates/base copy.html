@@ -1,0 +1,20 @@
+<!doctype html>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<title>{% block title %}{% endblock %} - PIC16B Website</title>
+<nav>
+  <h1>Welcome to our Resume Builder!</h1>
+  <!-- <b>Navigation:</b> -->
+  <ul>
+    <li><a href="{{ url_for('main') }}">Main page</a></li>
+    <li><a href="{{ url_for('hello')}}">About Us</a></li>
+    <li><a href="{{ url_for('ask') }}">Form</a></li>
+    <li><a href="{{ url_for('submit_basic') }}">Submit (profile)</a></li>
+    <li><a href="{{ url_for('submit') }}">Submit (profile photo)</a></li>
+  </ul>
+</nav>
+<section class="content">
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+  {% block content %}{% endblock %}
+</section>
