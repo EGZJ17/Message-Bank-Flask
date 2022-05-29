@@ -97,7 +97,7 @@ def submit():
 
             # render the page with various defined variables that can be used by Jinja
             # to manipulate the webpage
-            return render_template('submit.html', submitted=True, message=message, handle=handle)
+            return render_template('submit.html', Thanks=True, message=message, handle=handle)
 
         except: # if an error occurred, render the webpage while specifying the error
             return render_template('submit.html', error=True)
