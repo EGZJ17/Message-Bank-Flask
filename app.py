@@ -11,15 +11,36 @@ This set of lecture notes is based in part on previous materials developed by [E
 '''
 from flask import Flask, g, render_template, request
 from flask import redirect, url_for, abort
+import numpy as np
 import sqlite3
 
 app = Flask(__name__)
 
-
-# specify that the below function will be called when '/' is appended to the webpage's URL
+#main page
 @app.route('/')
 def main():
     return render_template('main.html')
+
+# specify that the below function will be called when '/submit/' is appended to the 
+# webpage's URL; also specify that this function will make use of POST and GET methods
+@app.route('/submit/', methods=['POST', 'GET'])
+def submit():
+    # render the page if the user only accesses the webpage without submitting a form
+    if request.method == 'GET':
+        return render_template('submit.html')
+
+# otherwise, the user submitted the form
+    else:
+        try: # call insert_message() and save its return values
+            message, handle = insert_message()
+
+            # render the page with various defined variables that can be used by Jinja
+            # to manipulate the webpage
+            return render_template('submit.html', Thanks=True, message=message, handle=handle)
+
+        except: # if an error occurred, render the webpage while specifying the error
+            return render_template('submit.html', error=True)
+
 
 
 def get_message_db():
@@ -81,26 +102,6 @@ def insert_message():
     return message, handle
 
 
-# specify that the below function will be called when '/submit/' is appended to the 
-# webpage's URL; also specify that this function will make use of POST and GET methods
-@app.route('/submit/', methods=['POST', 'GET'])
-def submit():
-
-    # render the page if the user only accesses the webpage without submitting a form
-    if request.method == 'GET':
-        return render_template('submit.html')
-
-    # otherwise, the user submitted the form
-    else:
-        try: # call insert_message() and save its return values
-            message, handle = insert_message()
-
-            # render the page with various defined variables that can be used by Jinja
-            # to manipulate the webpage
-            return render_template('submit.html', Thanks=True, message=message, handle=handle)
-
-        except: # if an error occurred, render the webpage while specifying the error
-            return render_template('submit.html', error=True)
 
 
 
