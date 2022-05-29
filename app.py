@@ -19,7 +19,7 @@ app = Flask(__name__)
 # specify that the below function will be called when '/' is appended to the webpage's URL
 @app.route('/')
 def main():
-    return render_template('main.html')
+    return render_template('submit.html')
 
 
 def get_message_db():
