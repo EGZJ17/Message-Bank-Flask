@@ -1,20 +1,34 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}How to build your resume{% endblock %}</h1>
+  <h1>{% block title %}Submit{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-  <p>Lets Build A Resume!</p>
+  <form method="post">
+      <label for="message">Your message:</label>
+      <br>
+      <input type="text" name="message" id="message">
+      <br>
+      <label for="handle">Your name or handle:</label>
+      <br>
+      <input type="text" name="handle" id="handle">
+      <br>
+      <input type="submit" value="Submit message">
+  </form>
+ 
+ {% if thanks %}
+    <br>
+    Thanks for submitting a message! 🎉
+ {% endif %}
 
-  <h2>Instructions</h2>
+ {% if error %}
+    <br>
+    Oh no, we couldn't submit that message! Please try again and make sure to not leave the message or name blank.
+ {% endif %}
 
-  <ul>
-    <p><i>Step 1</i>: Fill in your information under the form tab<p>
-    <p><i>Step 2</i>: Select your ideal template<p>
-    </p><i>Step 3</i>: Review your generated resume<p>
-    </p><i>Step 4</i>: Look over the provided job recommendations</p>
-  </ul>
+{% endblock %}
+
 
 
   <p>🎉 Our goal is to have a working resume for you to get your dream job at or jumpstart your career 🎉</p>
